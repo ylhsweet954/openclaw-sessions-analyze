@@ -291,16 +291,18 @@
     return toolbar;
   }
 
-  function attachCollapsibleRow(row, typeEl, bodyEl) {
+  /**
+   * @param {{ defaultCollapsed?: boolean }} [opts]
+   */
+  function attachCollapsibleRow(row, typeEl, bodyEl, opts) {
+    const defaultCollapsed = !!(opts && opts.defaultCollapsed);
     const header = document.createElement("div");
     header.className = "event-row-header";
 
     const toggleBtn = document.createElement("button");
     toggleBtn.type = "button";
     toggleBtn.className = "event-row-toggle";
-    toggleBtn.setAttribute("aria-expanded", "true");
     toggleBtn.setAttribute("aria-label", "展开或折叠本行详情");
-    toggleBtn.textContent = "▼";
     toggleBtn.addEventListener("click", function (e) {
       e.stopPropagation();
       row.classList.toggle("event-row--collapsed");
@@ -320,6 +322,8 @@
 
     row.appendChild(header);
     row.appendChild(bodyWrap);
+    if (defaultCollapsed) row.classList.add("event-row--collapsed");
+    syncEventRowToggle(row);
   }
 
   function sortNames(arr) {
@@ -557,7 +561,7 @@
       const raw = document.createElement("div");
       raw.className = "event-raw";
       raw.textContent = line.error + "\n" + line.raw;
-      attachCollapsibleRow(row, t, raw);
+      attachCollapsibleRow(row, t, raw, { defaultCollapsed: true });
       return row;
     }
 
@@ -601,7 +605,11 @@
       contentEl = pre;
     }
 
-    attachCollapsibleRow(row, t, contentEl);
+    const isMessageRow =
+      v && typeof v === "object" && v.type === "message" && v.message;
+    attachCollapsibleRow(row, t, contentEl, {
+      defaultCollapsed: !isMessageRow,
+    });
     return row;
   }
 

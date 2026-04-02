@@ -4,7 +4,7 @@
 	"description": "Local HTTP viewer for OpenClaw agent sessions (osa CLI)",
 	"type": "module",
 	"bin": {
-		"osa": "./dist/cli.js"
+		"osa": "dist/cli.js"
 	},
 	"main": "./dist/cli.js",
 	"files": [
@@ -26,6 +26,14 @@
 		"cli"
 	],
 	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ylhsweet954/openclaw-sessions-analyse.git"
+	},
+	"bugs": {
+		"url": "https://github.com/ylhsweet954/openclaw-sessions-analyse/issues"
+	},
+	"homepage": "https://github.com/ylhsweet954/openclaw-sessions-analyse#readme",
 	"dependencies": {
 		"open": "^10.1.0"
 	},
