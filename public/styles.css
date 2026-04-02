@@ -1,0 +1,269 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+  font-size: 14px;
+  color: #1a1a1e;
+  background: #f0f0f3;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.topbar {
+  flex-shrink: 0;
+  padding: 12px 16px;
+  background: #fafafa;
+  border-bottom: 1px solid #d8d8dc;
+}
+
+.title {
+  margin: 0 0 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c2c32;
+}
+
+.path-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.path-row label {
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.path-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 6px 10px;
+  border: 1px solid #c8c8cc;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 0.9rem;
+}
+
+.path-input:focus {
+  outline: 2px solid #a8c4f0;
+  border-color: #88a8d8;
+}
+
+.btn {
+  padding: 6px 14px;
+  border: 1px solid #b0b0b8;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.btn:hover {
+  background: #f4f4f6;
+}
+
+.btn-secondary {
+  border-color: #c8c8cc;
+  color: #444;
+}
+
+.layout {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.sidebar {
+  width: 300px;
+  flex-shrink: 0;
+  border-right: 1px solid #d8d8dc;
+  background: #f7f7f9;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.sidebar-hint {
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  color: #666;
+  border-bottom: 1px solid #e4e4e8;
+}
+
+.session-list {
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.session-list li {
+  margin-bottom: 4px;
+}
+
+.session-item {
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.85rem;
+  line-height: 1.35;
+}
+
+.session-item:hover {
+  background: #ececf0;
+}
+
+.session-item.active {
+  background: #e4ecfc;
+  border-color: #b8c8e8;
+}
+
+.session-item .name {
+  font-weight: 500;
+  color: #222;
+  word-break: break-all;
+}
+
+.session-item .sub {
+  font-size: 0.75rem;
+  color: #666;
+  margin-top: 2px;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  padding: 1px 5px;
+  border-radius: 4px;
+  margin-left: 4px;
+  vertical-align: middle;
+  text-transform: uppercase;
+}
+
+.badge-active {
+  background: #d8f0d8;
+  color: #2a5a2a;
+}
+
+.badge-deleted {
+  background: #f0d8d8;
+  color: #6a2a2a;
+}
+
+.badge-reset {
+  background: #f0e8d8;
+  color: #6a552a;
+}
+
+.detail {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: #fafafa;
+  min-height: 0;
+}
+
+.detail-empty {
+  padding: 24px;
+  color: #888;
+}
+
+.detail-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 12px 16px;
+}
+
+.detail-content.hidden {
+  display: none;
+}
+
+.detail-meta {
+  flex-shrink: 0;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  background: #fff;
+  border: 1px solid #e0e0e4;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  max-height: 200px;
+  overflow: auto;
+}
+
+.detail-meta pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.detail-events {
+  flex: 1;
+  overflow-y: auto;
+  border: 1px solid #e0e0e4;
+  border-radius: 8px;
+  background: #fff;
+  padding: 8px 0;
+}
+
+.event-row {
+  padding: 8px 12px;
+  border-bottom: 1px solid #f0f0f2;
+  font-size: 0.8rem;
+}
+
+.event-row:last-child {
+  border-bottom: none;
+}
+
+.event-type {
+  font-weight: 600;
+  color: #3a5a8a;
+  margin-bottom: 4px;
+}
+
+.event-body {
+  color: #333;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.event-raw {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.75rem;
+  color: #555;
+}
+
+.err-banner {
+  margin: 8px 12px;
+  padding: 8px 10px;
+  background: #fce8e8;
+  border: 1px solid #e8b0b0;
+  border-radius: 6px;
+  color: #822;
+  font-size: 0.85rem;
+}
+
+.hidden {
+  display: none !important;
+}

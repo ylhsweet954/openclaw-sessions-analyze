@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OpenClaw 会话查看</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <h1 class="title">OpenClaw 会话</h1>
+      <div class="path-row">
+        <label for="rootPath">会话目录</label>
+        <input
+          type="text"
+          id="rootPath"
+          class="path-input"
+          spellcheck="false"
+          autocomplete="off"
+          placeholder="加载中…"
+        />
+        <button type="button" id="saveRoot" class="btn">保存</button>
+        <button type="button" id="reloadList" class="btn btn-secondary">刷新列表</button>
+      </div>
+    </header>
+    <main class="layout">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-hint" id="listHint">正在加载…</div>
+        <ul class="session-list" id="sessionList"></ul>
+      </aside>
+      <section class="detail" id="detail">
+        <div class="detail-empty" id="detailEmpty">请从左侧选择一个会话</div>
+        <div class="detail-content hidden" id="detailContent">
+          <div class="detail-meta" id="detailMeta"></div>
+          <div class="detail-events" id="detailEvents"></div>
+        </div>
+      </section>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>
