@@ -1,4 +1,4 @@
-# openclaw-sessions-analyse
+# openclaw-sessions-analyze
 
 本地查看 [OpenClaw](https://github.com/openclaw) 代理会话目录（`sessions.json` 与 `*.jsonl`）的小型 CLI：启动后在本机打开浏览器，左侧为会话文件列表，右侧为转录内容。
 
@@ -9,7 +9,7 @@
 ## 安装
 
 ```bash
-npm install -g openclaw-sessions-analyse
+npm install -g openclaw-sessions-analyze
 ```
 
 ## 使用
@@ -25,7 +25,7 @@ osa
 不全局安装时：
 
 ```bash
-npx openclaw-sessions-analyse
+npx openclaw-sessions-analyze
 ```
 
 ### macOS 说明
@@ -33,13 +33,13 @@ npx openclaw-sessions-analyse
 系统自带名为 `osa` 的工具（AppleScript）。若与全局安装的命令冲突，请使用：
 
 ```bash
-npx openclaw-sessions-analyse
+npx openclaw-sessions-analyze
 ```
 
 或：
 
 ```bash
-node $(npm root -g)/openclaw-sessions-analyse/dist/cli.js
+node $(npm root -g)/openclaw-sessions-analyze/dist/cli.js
 ```
 
 （路径以本机 npm 全局目录为准。）
@@ -62,10 +62,10 @@ npm test
 
 ## API（本地）
 
-| 路径 | 说明 |
-|------|------|
-| `GET /api/config` | 返回默认会话目录 `defaultRoot` |
-| `GET /api/list?root=` | 列出会话文件；省略 `root` 时用默认目录 |
+| 路径                                      | 说明                                                                   |
+| ----------------------------------------- | ---------------------------------------------------------------------- |
+| `GET /api/config`                         | 返回默认会话目录 `defaultRoot`                                         |
+| `GET /api/list?root=`                     | 列出会话文件；省略 `root` 时用默认目录                                 |
 | `GET /api/session/:sessionId?root=&file=` | 读取转录；`file` 为目录内文件名，用于同一 `sessionId` 多文件时精确选中 |
 
 ## 许可证

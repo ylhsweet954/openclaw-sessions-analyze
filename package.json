@@ -1,37 +1,37 @@
 {
-  "name": "openclaw-sessions-analyse",
-  "version": "0.1.0",
-  "description": "Local HTTP viewer for OpenClaw agent sessions (osa CLI)",
-  "type": "module",
-  "bin": {
-    "osa": "./dist/cli.js"
-  },
-  "main": "./dist/cli.js",
-  "files": [
-    "dist",
-    "public"
-  ],
-  "scripts": {
-    "build": "tsc",
-    "prepublishOnly": "npm run build",
-    "start": "node dist/cli.js",
-    "test": "vitest run"
-  },
-  "engines": {
-    "node": ">=18"
-  },
-  "keywords": [
-    "openclaw",
-    "sessions",
-    "cli"
-  ],
-  "license": "MIT",
-  "dependencies": {
-    "open": "^10.1.0"
-  },
-  "devDependencies": {
-    "@types/node": "^22.10.0",
-    "typescript": "^5.7.0",
-    "vitest": "^3.0.0"
-  }
+	"name": "openclaw-sessions-analyze",
+	"version": "0.1.0",
+	"description": "Local HTTP viewer for OpenClaw agent sessions (osa CLI)",
+	"type": "module",
+	"bin": {
+		"osa": "./dist/cli.js"
+	},
+	"main": "./dist/cli.js",
+	"files": [
+		"dist",
+		"public"
+	],
+	"scripts": {
+		"build": "tsc",
+		"prepublishOnly": "npm run build",
+		"start": "node dist/cli.js",
+		"test": "vitest run"
+	},
+	"engines": {
+		"node": ">=18"
+	},
+	"keywords": [
+		"openclaw",
+		"sessions",
+		"cli"
+	],
+	"license": "MIT",
+	"dependencies": {
+		"open": "^10.1.0"
+	},
+	"devDependencies": {
+		"@types/node": "^22.10.0",
+		"typescript": "^5.7.0",
+		"vitest": "^3.0.0"
+	}
 }
