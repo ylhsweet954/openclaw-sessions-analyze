@@ -182,7 +182,7 @@ export async function handleRequest(
         sendJson(res, 404, { error: "Session transcript not found" });
         return;
       }
-      const { lines, truncated, totalLines } = await readJsonlLines(
+      const { lines, truncated, totalLines, raw } = await readJsonlLines(
         transcriptPath
       );
       sendJson(res, 200, {
@@ -194,6 +194,7 @@ export async function handleRequest(
         lines,
         truncated,
         totalLines,
+        rawJsonl: raw,
       });
     } catch (e) {
       sendJson(res, 500, {

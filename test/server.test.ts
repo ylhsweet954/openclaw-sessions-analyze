@@ -122,10 +122,15 @@ describe("HTTP server", () => {
         `${base}/api/session/${encodeURIComponent(SID)}${q}`
       );
       expect(status).toBe(200);
-      const b = body as { lines: Array<{ ok: boolean }>; transcriptFileName: string };
+      const b = body as {
+        lines: Array<{ ok: boolean }>;
+        transcriptFileName: string;
+        rawJsonl: string;
+      };
       expect(b.transcriptFileName).toBe(file);
       expect(b.lines.length).toBe(1);
       expect(b.lines[0].ok).toBe(true);
+      expect(b.rawJsonl).toBe('{"type":"x","v":1}\n');
     } finally {
       await rm(dir, { recursive: true, force: true });
     }

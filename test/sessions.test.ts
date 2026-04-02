@@ -3,12 +3,14 @@ import * as os from "node:os";
 import * as path from "node:path";
 import { mkdtemp, rm } from "node:fs/promises";
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import type { SessionMetaEntry } from "../src/sessions.js";
 import {
   classifySessionFileName,
   getDefaultSessionsRoot,
   loadSessionsIndex,
   listSessionFiles,
   parseSessionIdFromFileName,
+  sessionListPrimaryTitle,
   readJsonlLines,
   resolveSessionTranscriptPath,
   resolveSessionsRoot,
@@ -127,6 +129,31 @@ describe("loadSessionsIndex", () => {
   });
 });
 
+describe("sessionListPrimaryTitle", () => {
+  it("prefers label then displayName then sessionId", () => {
+    expect(
+      sessionListPrimaryTitle({ sessionId: SID1, label: "Cron A" } as SessionMetaEntry, SID1)
+    ).toBe("Cron A");
+    expect(
+      sessionListPrimaryTitle(
+        {
+          sessionId: SID1,
+          label: "  ",
+          displayName: "From display",
+        } as SessionMetaEntry,
+        SID1
+      )
+    ).toBe("From display");
+    expect(
+      sessionListPrimaryTitle(
+        { sessionId: SID1, displayName: "Only display" } as SessionMetaEntry,
+        SID1
+      )
+    ).toBe("Only display");
+    expect(sessionListPrimaryTitle(null, SID1)).toBe(SID1);
+  });
+});
+
 describe("listSessionFiles", () => {
   let dir: string;
   beforeEach(async () => {
@@ -167,6 +194,7 @@ describe("listSessionFiles", () => {
     expect(items.length).toBe(2);
     expect(items[0].sessionId).toBe(SID1);
     expect(items[0].label).toBe("qq");
+    expect(items[0].listTitle).toBe(SID1);
     expect(items[0].source).toBe("active");
   });
 });
@@ -214,7 +242,8 @@ describe("readJsonlLines", () => {
   it("splits CRLF and parses lines", async () => {
     const f = path.join(dir, "t.jsonl");
     await fs.writeFile(f, '{"a":1}\r\n{"b":2}\n', "utf8");
-    const { lines, totalLines, truncated } = await readJsonlLines(f);
+    const { lines, totalLines, truncated, raw } = await readJsonlLines(f);
+    expect(raw).toBe('{"a":1}\r\n{"b":2}\n');
     expect(totalLines).toBe(2);
     expect(truncated).toBe(false);
     expect(lines[0]).toMatchObject({ line: 1, ok: true, value: { a: 1 } });

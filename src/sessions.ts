@@ -41,8 +41,35 @@ export type SessionMetaEntry = {
   lastChannel?: string;
   chatType?: string;
   sessionFile?: string;
+  /** 会话展示名（若存在且非空，列表主标题优先使用） */
+  label?: string;
+  displayName?: string;
   [key: string]: unknown;
 };
+
+/** 非空字符串（trim 后）；否则 null */
+export function nonEmptyString(v: unknown): string | null {
+  if (typeof v !== "string") return null;
+  const t = v.trim();
+  return t.length > 0 ? t : null;
+}
+
+/**
+ * 列表主标题：meta.label → meta.displayName → sessionId
+ */
+export function sessionListPrimaryTitle(
+  meta: SessionMetaEntry | null,
+  sessionId: string
+): string {
+  if (meta) {
+    const m = meta as Record<string, unknown>;
+    const fromLabel = nonEmptyString(m.label);
+    if (fromLabel) return fromLabel;
+    const fromDisplay = nonEmptyString(m.displayName);
+    if (fromDisplay) return fromDisplay;
+  }
+  return sessionId;
+}
 
 /** Merge metadata from sessions.json (multiple keys may reference same sessionId). */
 export async function loadSessionsIndex(
@@ -104,7 +131,10 @@ export function sessionIdsEqual(a: string, b: string): boolean {
 export type SessionListItem = {
   sessionId: string;
   fileName: string;
+  /** 副标题用：lastChannel / chatType 等 */
   label: string;
+  /** 列表主标题：meta.label → meta.displayName → sessionId */
+  listTitle: string;
   updatedAt: number | null;
   source: SessionFileKind;
   meta: SessionMetaEntry | null;
@@ -139,6 +169,7 @@ export async function listSessionFiles(
       sessionId: sid,
       fileName,
       label: String(label),
+      listTitle: sessionListPrimaryTitle(meta, sid),
       updatedAt: updatedAt != null ? Math.round(updatedAt) : null,
       source,
       meta,
@@ -191,6 +222,7 @@ export async function readJsonlLines(
   lines: JsonlLine[];
   truncated: boolean;
   totalLines: number;
+  raw: string;
 }> {
   const raw = await fs.readFile(filePath, "utf8");
   const parts = raw.split(/\r?\n/).filter((l) => l.length > 0);
@@ -215,5 +247,6 @@ export async function readJsonlLines(
     lines,
     truncated: totalLines > maxLines,
     totalLines,
+    raw,
   };
 }

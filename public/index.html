@@ -1,41 +1,111 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>OpenClaw 会话查看</title>
-    <link rel="stylesheet" href="/styles.css" />
-  </head>
-  <body>
-    <header class="topbar">
-      <h1 class="title">OpenClaw 会话</h1>
-      <div class="path-row">
-        <label for="rootPath">会话目录</label>
-        <input
-          type="text"
-          id="rootPath"
-          class="path-input"
-          spellcheck="false"
-          autocomplete="off"
-          placeholder="加载中…"
-        />
-        <button type="button" id="saveRoot" class="btn">保存</button>
-        <button type="button" id="reloadList" class="btn btn-secondary">刷新列表</button>
-      </div>
-    </header>
-    <main class="layout">
-      <aside class="sidebar" id="sidebar">
-        <div class="sidebar-hint" id="listHint">正在加载…</div>
-        <ul class="session-list" id="sessionList"></ul>
-      </aside>
-      <section class="detail" id="detail">
-        <div class="detail-empty" id="detailEmpty">请从左侧选择一个会话</div>
-        <div class="detail-content hidden" id="detailContent">
-          <div class="detail-meta" id="detailMeta"></div>
-          <div class="detail-events" id="detailEvents"></div>
-        </div>
-      </section>
-    </main>
-    <script src="/app.js"></script>
-  </body>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>OpenClaw 会话查看</title>
+		<link rel="stylesheet" href="/styles.css" />
+	</head>
+	<body>
+		<header class="topbar">
+			<h1 class="title">OpenClaw 会话</h1>
+			<div class="path-row">
+				<label for="rootPath">会话目录</label>
+				<input
+					type="text"
+					id="rootPath"
+					class="path-input"
+					spellcheck="false"
+					autocomplete="off"
+					placeholder="加载中…"
+				/>
+				<button type="button" id="saveRoot" class="btn">保存</button>
+				<button type="button" id="reloadList" class="btn btn-secondary">
+					刷新列表
+				</button>
+			</div>
+		</header>
+		<main class="layout">
+			<aside class="sidebar" id="sidebar">
+				<div class="sidebar-hint" id="listHint">正在加载…</div>
+				<ul class="session-list" id="sessionList"></ul>
+			</aside>
+			<section class="detail" id="detail">
+				<div class="detail-empty" id="detailEmpty">请从左侧选择一个会话</div>
+				<div class="detail-content hidden" id="detailContent">
+					<details class="detail-meta" id="detailMeta">
+						<summary class="detail-meta-summary">会话上下文信息</summary>
+						<div
+							class="detail-meta-panel"
+							data-default-height="200"
+							data-min-height="80"
+							data-max-height-vh="80"
+						>
+							<div class="detail-meta-scroll" style="height: 200px">
+								<div class="detail-meta-body" id="detailMetaBody"></div>
+							</div>
+							<div
+								class="detail-meta-resize-handle"
+								title="拖动调节高度"
+								role="separator"
+								aria-orientation="horizontal"
+								aria-label="拖动调节内容区高度"
+							></div>
+						</div>
+					</details>
+					<details class="detail-meta" id="detailRawJsonl">
+						<summary class="detail-meta-summary">会话原始jsonl信息</summary>
+						<div
+							class="detail-meta-panel"
+							data-default-height="200"
+							data-min-height="80"
+							data-max-height-vh="80"
+						>
+							<div class="detail-meta-scroll" style="height: 200px">
+								<div class="detail-meta-body" id="detailRawJsonlBody"></div>
+							</div>
+							<div
+								class="detail-meta-resize-handle"
+								title="拖动调节高度"
+								role="separator"
+								aria-orientation="horizontal"
+								aria-label="拖动调节内容区高度"
+							></div>
+						</div>
+					</details>
+					<details class="detail-meta" id="detailSummary">
+						<summary class="detail-meta-summary">会话基本信息</summary>
+						<div
+							class="detail-meta-panel"
+							data-default-height="200"
+							data-min-height="80"
+							data-max-height-vh="80"
+						>
+							<div class="detail-meta-scroll" style="height: 150px">
+								<div class="detail-meta-body detail-summary-body">
+									<dl class="detail-summary-dl">
+										<dt>会话名称</dt>
+										<dd id="detailSummaryListTitle">—</dd>
+										<dt>技能（name）</dt>
+										<dd id="detailSummarySkills">—</dd>
+										<dt>工具（name）</dt>
+										<dd id="detailSummaryTools">—</dd>
+									</dl>
+								</div>
+							</div>
+							<div
+								class="detail-meta-resize-handle"
+								title="拖动调节高度"
+								role="separator"
+								aria-orientation="horizontal"
+								aria-label="拖动调节内容区高度"
+							></div>
+						</div>
+					</details>
+					<div class="detail-events" id="detailEvents"></div>
+				</div>
+			</section>
+		</main>
+		<script src="/app.js"></script>
+	</body>
 </html>
