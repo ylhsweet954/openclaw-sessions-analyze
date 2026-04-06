@@ -1,11 +1,14 @@
 (function () {
   const LS_KEY = "osa:sessionsRoot";
+  const LS_SIDEBAR = "osa:sidebarCollapsed";
 
   const rootPath = document.getElementById("rootPath");
   const saveRoot = document.getElementById("saveRoot");
   const reloadList = document.getElementById("reloadList");
   const sessionList = document.getElementById("sessionList");
-  const listHint = document.getElementById("listHint");
+  const listHintText = document.getElementById("listHintText");
+  const sidebar = document.getElementById("sidebar");
+  const sidebarToggle = document.getElementById("sidebarToggle");
   const detailEmpty = document.getElementById("detailEmpty");
   const detailContent = document.getElementById("detailContent");
   const detailMeta = document.getElementById("detailMeta");
@@ -57,10 +60,10 @@
   function renderList(sessions) {
     sessionList.innerHTML = "";
     if (!sessions.length) {
-      listHint.textContent = "该目录下没有匹配的会话文件。";
+      listHintText.textContent = "该目录下没有匹配的会话文件。";
       return;
     }
-    listHint.textContent = sessions.length + " 个会话文件";
+    listHintText.textContent = sessions.length + " 个会话文件";
     for (const s of sessions) {
       const li = document.createElement("li");
       const btn = document.createElement("button");
@@ -107,14 +110,14 @@
   }
 
   async function loadList() {
-    listHint.textContent = "加载中…";
+    listHintText.textContent = "加载中…";
     sessionList.innerHTML = "";
     const root = currentRoot();
     const q = root ? "?root=" + encodeURIComponent(root) : "";
     const r = await fetch("/api/list" + q);
     const data = await r.json().catch(() => ({}));
     if (!r.ok) {
-      listHint.textContent = "错误: " + (data.error || r.statusText);
+      listHintText.textContent = "错误: " + (data.error || r.statusText);
       return;
     }
     rootPath.value = data.root || root;
@@ -286,9 +289,139 @@
 
     actions.appendChild(btnExpand);
     actions.appendChild(btnCollapse);
+
+    const btnFs = document.createElement("button");
+    btnFs.type = "button";
+    btnFs.id = "detailEventsFullscreenBtn";
+    btnFs.className = "btn btn-secondary btn-toolbar";
+    btnFs.textContent = "全屏";
+    btnFs.title = "全屏显示会话事件";
+    btnFs.setAttribute("aria-pressed", "false");
+    btnFs.addEventListener("click", function () {
+      toggleDetailEventsFullscreen();
+    });
+
+    actions.appendChild(btnFs);
     toolbar.appendChild(actions);
 
     return toolbar;
+  }
+
+  function getFullscreenElement() {
+    return (
+      document.fullscreenElement ||
+      document.webkitFullscreenElement ||
+      document.msFullscreenElement ||
+      null
+    );
+  }
+
+  function requestFullscreenEl(el) {
+    if (el.requestFullscreen) return el.requestFullscreen();
+    if (el.webkitRequestFullscreen) return el.webkitRequestFullscreen();
+    if (el.msRequestFullscreen) return el.msRequestFullscreen();
+    return Promise.reject(new Error("no fullscreen"));
+  }
+
+  function exitFullscreenDoc() {
+    if (document.exitFullscreen) return document.exitFullscreen();
+    if (document.webkitExitFullscreen) return document.webkitExitFullscreen();
+    if (document.msExitFullscreen) return document.msExitFullscreen();
+    return Promise.reject(new Error("no exit fullscreen"));
+  }
+
+  function syncDetailEventsFullscreenButton() {
+    const btn = document.getElementById("detailEventsFullscreenBtn");
+    if (!btn || !detailEvents) return;
+    const inNative = getFullscreenElement() === detailEvents;
+    const inOverlay = detailEvents.classList.contains("detail-events--overlay");
+    const active = inNative || inOverlay;
+    btn.textContent = active ? "退出全屏" : "全屏";
+    btn.title = active ? "退出全屏" : "全屏显示会话事件";
+    btn.setAttribute("aria-pressed", active ? "true" : "false");
+  }
+
+  function teardownDetailEventsFullscreen() {
+    if (detailEvents && getFullscreenElement() === detailEvents) {
+      void exitFullscreenDoc().catch(function () {});
+    }
+    if (detailEvents) {
+      detailEvents.classList.remove("detail-events--overlay");
+    }
+    document.body.style.overflow = "";
+  }
+
+  function toggleDetailEventsFullscreen() {
+    if (!detailEvents) return;
+    if (detailEvents.classList.contains("detail-events--overlay")) {
+      teardownDetailEventsFullscreen();
+      syncDetailEventsFullscreenButton();
+      return;
+    }
+    if (getFullscreenElement() === detailEvents) {
+      void exitFullscreenDoc().catch(function () {});
+      return;
+    }
+    requestFullscreenEl(detailEvents)
+      .then(function () {
+        syncDetailEventsFullscreenButton();
+      })
+      .catch(function () {
+        detailEvents.classList.add("detail-events--overlay");
+        document.body.style.overflow = "hidden";
+        syncDetailEventsFullscreenButton();
+      });
+  }
+
+  let detailEventsToolbarResizeObserver = null;
+
+  function teardownDetailEventsToolbarObserver() {
+    if (detailEventsToolbarResizeObserver) {
+      detailEventsToolbarResizeObserver.disconnect();
+      detailEventsToolbarResizeObserver = null;
+    }
+    if (detailEvents) {
+      detailEvents.style.removeProperty("--detail-events-sticky-top");
+    }
+  }
+
+  function syncDetailEventsToolbarStickyOffset() {
+    if (!detailEvents) return;
+    const tb = detailEvents.querySelector(".event-toolbar");
+    if (!tb) {
+      detailEvents.style.removeProperty("--detail-events-sticky-top");
+      return;
+    }
+    detailEvents.style.setProperty(
+      "--detail-events-sticky-top",
+      tb.offsetHeight + "px"
+    );
+  }
+
+  function observeDetailEventsToolbar() {
+    teardownDetailEventsToolbarObserver();
+    const tb = detailEvents.querySelector(".event-toolbar");
+    if (!tb) return;
+    syncDetailEventsToolbarStickyOffset();
+    detailEventsToolbarResizeObserver = new ResizeObserver(function () {
+      syncDetailEventsToolbarStickyOffset();
+    });
+    detailEventsToolbarResizeObserver.observe(tb);
+  }
+
+  function initDetailEventsFullscreen() {
+    function onFsChange() {
+      syncDetailEventsFullscreenButton();
+    }
+    document.addEventListener("fullscreenchange", onFsChange);
+    document.addEventListener("webkitfullscreenchange", onFsChange);
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape") return;
+      if (!detailEvents || !detailEvents.classList.contains("detail-events--overlay"))
+        return;
+      teardownDetailEventsFullscreen();
+      syncDetailEventsFullscreenButton();
+    });
   }
 
   /**
@@ -550,7 +683,279 @@
     return role + ":\n\n" + parts.join("\n\n");
   }
 
-  function renderEvent(line) {
+  function numOrNull(v) {
+    if (typeof v === "number" && Number.isFinite(v)) return v;
+    if (typeof v === "string" && v.trim() !== "") {
+      const n = Number(v);
+      if (Number.isFinite(n)) return n;
+    }
+    return null;
+  }
+
+  function parseTimeToMs(v) {
+    if (v == null) return null;
+    if (typeof v === "number" && Number.isFinite(v)) {
+      if (v > 1e12) return Math.round(v);
+      if (v > 1e9) return Math.round(v * 1000);
+      return Math.round(v);
+    }
+    if (typeof v === "string") {
+      const d = Date.parse(v);
+      if (!Number.isNaN(d)) return d;
+    }
+    return null;
+  }
+
+  function mergeUsageObject(u) {
+    if (!u || typeof u !== "object") return { inT: null, outT: null };
+    const inT = numOrNull(
+      u.input_tokens ??
+        u.prompt_tokens ??
+        u.inputTokens ??
+        u.promptTokens ??
+        u.input ??
+        u.cache_read_input_tokens ??
+        u.promptTokenCount
+    );
+    const outT = numOrNull(
+      u.output_tokens ??
+        u.completion_tokens ??
+        u.outputTokens ??
+        u.completionTokens ??
+        u.output ??
+        u.candidatesTokenCount ??
+        u.outputTokenCount
+    );
+    return { inT, outT };
+  }
+
+  /** 开始时间：message.timestamp（多为毫秒时间戳） */
+  function getMessageStartMs(envelope) {
+    const msg =
+      envelope &&
+      envelope.message &&
+      typeof envelope.message === "object"
+        ? envelope.message
+        : null;
+    if (!msg) return null;
+    return parseTimeToMs(msg.timestamp);
+  }
+
+  /** 结束时间：JSONL 行级 timestamp（ISO，可含毫秒） */
+  function getMessageEndMs(envelope) {
+    const root = envelope && typeof envelope === "object" ? envelope : {};
+    return parseTimeToMs(root.timestamp) || parseTimeToMs(root.ts);
+  }
+
+  function extractMessageLineMetrics(envelope) {
+    const msg =
+      envelope &&
+      envelope.message &&
+      typeof envelope.message === "object"
+        ? envelope.message
+        : null;
+    const root = envelope && typeof envelope === "object" ? envelope : {};
+    const meta =
+      root.meta && typeof root.meta === "object" ? root.meta : null;
+
+    function str(x) {
+      if (typeof x === "string" && x.trim()) return x.trim();
+      return null;
+    }
+
+    function pickModel() {
+      return (
+        str(msg && msg.model) ||
+        str(root.model) ||
+        str(msg && msg.modelId) ||
+        str(root.modelId) ||
+        str(msg && msg.modelName) ||
+        str(meta && meta.model) ||
+        null
+      );
+    }
+
+    const usage =
+      (msg && msg.usage) ||
+      (msg && msg.usageMetadata) ||
+      root.usage ||
+      root.usageMetadata ||
+      (meta && meta.usage) ||
+      null;
+    let { inT, outT } = mergeUsageObject(usage);
+
+    if (inT == null && outT == null && msg && msg.usageMetadata) {
+      const u2 = mergeUsageObject(msg.usageMetadata);
+      inT = u2.inT;
+      outT = u2.outT;
+    }
+
+    const startMs = getMessageStartMs(envelope);
+    const endMs = getMessageEndMs(envelope);
+
+    let durationMs =
+      numOrNull(msg && msg.durationMs) ||
+      numOrNull(root.durationMs);
+
+    function normalizeLooseDuration(d) {
+      if (d == null || !Number.isFinite(d) || d <= 0) return null;
+      if (!Number.isInteger(d) && d < 86400000) return Math.round(d * 1000);
+      if (Number.isInteger(d) && d > 0 && d < 1000) return d * 1000;
+      return Math.round(d);
+    }
+
+    if (durationMs == null) {
+      const d = numOrNull(msg && msg.duration) || numOrNull(root.duration);
+      durationMs = normalizeLooseDuration(d);
+    }
+
+    if (durationMs == null && startMs != null && endMs != null) {
+      durationMs = Math.abs(endMs - startMs);
+    }
+
+    return {
+      model: pickModel(),
+      inputTokens: inT,
+      outputTokens: outT,
+      startMs,
+      endMs,
+      durationMs,
+    };
+  }
+
+  function getEffectiveDurationMs(metrics) {
+    if (!metrics) return null;
+    if (
+      metrics.durationMs != null &&
+      Number.isFinite(metrics.durationMs) &&
+      metrics.durationMs >= 0
+    )
+      return metrics.durationMs;
+    if (metrics.startMs != null && metrics.endMs != null)
+      return Math.abs(metrics.endMs - metrics.startMs);
+    return null;
+  }
+
+  /** 北京时间（Asia/Shanghai），含毫秒 */
+  function formatTs(ms) {
+    if (ms == null) return "—";
+    const n = Number(ms);
+    if (!Number.isFinite(n)) return "—";
+    const d = new Date(n);
+    if (Number.isNaN(d.getTime())) return "—";
+    const frac = Math.floor(Math.abs(n) % 1000);
+    const fracStr = String(frac).padStart(3, "0");
+    let base;
+    try {
+      base = d.toLocaleString("zh-CN", {
+        timeZone: "Asia/Shanghai",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+      });
+    } catch {
+      return "—";
+    }
+    return base + "." + fracStr;
+  }
+
+  function formatDurationMs(ms) {
+    if (ms == null || !Number.isFinite(ms)) return "—";
+    if (ms < 1000) return Math.round(ms) + " ms";
+    if (ms < 60000) return (ms / 1000).toFixed(1) + " s";
+    const s = Math.floor(ms / 1000);
+    const m = Math.floor(s / 60);
+    const h = Math.floor(m / 60);
+    if (h > 0) return h + " h " + (m % 60) + " min";
+    if (m > 0) return m + " min " + (s % 60) + " s";
+    return (ms / 1000).toFixed(1) + " s";
+  }
+
+  function formatMessageMetricsLine(metrics) {
+    const tin =
+      metrics.inputTokens != null ? String(metrics.inputTokens) : "—";
+    const tout =
+      metrics.outputTokens != null ? String(metrics.outputTokens) : "—";
+    return [
+      metrics.model || "—",
+      "输入 " + tin,
+      "输出 " + tout,
+      "开始 " + formatTs(metrics.startMs),
+      "结束 " + formatTs(metrics.endMs),
+      "时长 " + formatDurationMs(getEffectiveDurationMs(metrics)),
+    ].join(" | ");
+  }
+
+  function buildDurationBar(metrics, maxDur) {
+    const track = document.createElement("div");
+    track.className = "event-duration-bar-track";
+
+    const dur = getEffectiveDurationMs(metrics);
+    let pct = 0;
+    let fillClass = "event-duration-bar-fill event-duration-bar-fill--none";
+
+    if (dur != null && dur > 0) {
+      pct =
+        maxDur > 0 ? Math.min(100, (dur / maxDur) * 100) : 100;
+      if (dur < 30000)
+        fillClass = "event-duration-bar-fill event-duration-bar-fill--short";
+      else if (dur < 60000)
+        fillClass = "event-duration-bar-fill event-duration-bar-fill--mid";
+      else fillClass = "event-duration-bar-fill event-duration-bar-fill--long";
+      track.title =
+        "时长 " +
+        formatDurationMs(dur) +
+        (maxDur > 0
+          ? " · 占本会话最长 message 的 " + Math.round(pct) + "%"
+          : "");
+    } else {
+      track.title =
+        dur == null
+          ? "无可用时长数据（无法绘制相对比例）"
+          : "本会话无有效时长用于归一化";
+    }
+
+    const fill = document.createElement("div");
+    fill.className = fillClass;
+    fill.style.width = pct + "%";
+    track.appendChild(fill);
+    return track;
+  }
+
+  function buildRichMessageTypeHeader(lineNo, role, metrics, maxDur) {
+    const wrap = document.createElement("div");
+    wrap.className = "event-type event-type--message-rich";
+
+    const line1 = document.createElement("div");
+    line1.className = "event-type-line1";
+    line1.appendChild(document.createTextNode("行 " + lineNo + " · message "));
+    const chip = document.createElement("span");
+    chip.className = roleChipClass(role);
+    chip.textContent = role;
+    line1.appendChild(chip);
+
+    const line2 = document.createElement("div");
+    line2.className = "event-type-meta-line";
+    line2.textContent = formatMessageMetricsLine(metrics);
+
+    const barCol = document.createElement("div");
+    barCol.className = "event-type-duration-col";
+    barCol.appendChild(buildDurationBar(metrics, maxDur));
+
+    wrap.appendChild(line1);
+    wrap.appendChild(line2);
+    wrap.appendChild(barCol);
+    return wrap;
+  }
+
+  function renderEvent(line, renderCtx) {
+    renderCtx = renderCtx || {};
+    const maxMsgDur = renderCtx.maxMessageDurationMs || 0;
+
     const row = document.createElement("div");
     row.className = "event-row";
 
@@ -568,8 +973,7 @@
     const v = line.value;
     const type = v && typeof v === "object" && v.type ? v.type : typeof v;
 
-    const t = document.createElement("div");
-    t.className = "event-type";
+    let t;
 
     if (v && typeof v === "object" && v.type === "message" && v.message) {
       const role = normalizeMessageRole(v.message);
@@ -577,14 +981,11 @@
       row.classList.add("event-row--message");
       row.classList.add(roleVariantClass(role));
 
-      const lineLabel = document.createElement("span");
-      lineLabel.textContent = "行 " + line.line + " · message ";
-      t.appendChild(lineLabel);
-      const chip = document.createElement("span");
-      chip.className = roleChipClass(role);
-      chip.textContent = role;
-      t.appendChild(chip);
+      const metrics = extractMessageLineMetrics(v);
+      t = buildRichMessageTypeHeader(line.line, role, metrics, maxMsgDur);
     } else {
+      t = document.createElement("div");
+      t.className = "event-type";
       t.textContent = "行 " + line.line + " · " + String(type);
     }
 
@@ -626,6 +1027,8 @@
     detailSummaryListTitle.textContent = "加载中…";
     detailSummarySkills.textContent = "加载中…";
     detailSummaryTools.textContent = "加载中…";
+    teardownDetailEventsFullscreen();
+    teardownDetailEventsToolbarObserver();
     detailEvents.innerHTML = "";
 
     const root = currentRoot();
@@ -644,6 +1047,7 @@
       detailSummaryListTitle.textContent = "—";
       detailSummarySkills.textContent = "—";
       detailSummaryTools.textContent = "—";
+      teardownDetailEventsFullscreen();
       detailEvents.innerHTML =
         '<div class="err-banner">' +
         (data.error || r.statusText) +
@@ -699,6 +1103,7 @@
     detailEvents.appendChild(
       buildEventsToolbar(sortRoles(Array.from(rolesSet)))
     );
+    observeDetailEventsToolbar();
 
     if (data.truncated) {
       const warn = document.createElement("div");
@@ -712,8 +1117,28 @@
       detailEvents.appendChild(warn);
     }
 
-    for (const line of data.lines || []) {
-      detailEvents.appendChild(renderEvent(line));
+    const lineArr = data.lines || [];
+    let maxMessageDurationMs = 0;
+    for (let i = 0; i < lineArr.length; i++) {
+      const ln = lineArr[i];
+      if (!ln.ok) continue;
+      const val = ln.value;
+      if (
+        !val ||
+        typeof val !== "object" ||
+        val.type !== "message" ||
+        !val.message
+      )
+        continue;
+      const d = getEffectiveDurationMs(extractMessageLineMetrics(val));
+      if (d != null && d > maxMessageDurationMs) maxMessageDurationMs = d;
+    }
+
+    const renderCtx = {
+      maxMessageDurationMs: maxMessageDurationMs,
+    };
+    for (const line of lineArr) {
+      detailEvents.appendChild(renderEvent(line, renderCtx));
     }
   }
 
@@ -786,12 +1211,43 @@
 
   initDetailMetaResize();
 
+  function applySidebarCollapsed(collapsed) {
+    if (!sidebar || !sidebarToggle) return;
+    sidebar.classList.toggle("sidebar--collapsed", collapsed);
+    sidebarToggle.setAttribute("aria-expanded", collapsed ? "false" : "true");
+    sidebarToggle.title = collapsed ? "展开会话列表" : "折叠会话列表";
+    const icon = sidebarToggle.querySelector(".sidebar-toggle-icon");
+    if (icon) icon.textContent = collapsed ? "»" : "«";
+    try {
+      localStorage.setItem(LS_SIDEBAR, collapsed ? "1" : "0");
+    } catch {
+      /* */
+    }
+  }
+
+  function initSidebarToggle() {
+    if (!sidebar || !sidebarToggle) return;
+    let collapsed = false;
+    try {
+      collapsed = localStorage.getItem(LS_SIDEBAR) === "1";
+    } catch {
+      /* */
+    }
+    applySidebarCollapsed(collapsed);
+    sidebarToggle.addEventListener("click", function () {
+      applySidebarCollapsed(!sidebar.classList.contains("sidebar--collapsed"));
+    });
+  }
+
+  initSidebarToggle();
+  initDetailEventsFullscreen();
+
   void (async function () {
     try {
       await initRoot();
       await loadList();
     } catch (e) {
-      listHint.textContent =
+      listHintText.textContent =
         "初始化失败: " + (e && e.message ? e.message : String(e));
       rootPath.placeholder = "";
     }

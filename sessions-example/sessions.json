@@ -1,0 +1,43 @@
+{
+  "agent:main:demo": {
+    "sessionId": "f0000001-0001-4001-8001-000000000001",
+    "updatedAt": 1775000000000,
+    "systemSent": true,
+    "abortedLastRun": false,
+    "chatType": "direct",
+    "lastChannel": "webchat",
+    "origin": {
+      "provider": "webchat",
+      "surface": "webchat",
+      "chatType": "direct"
+    },
+    "sessionFile": "/home/demo/.openclaw/agents/main/sessions/f0000001-0001-4001-8001-000000000001.jsonl",
+    "label": "示例：简单对话"
+  },
+  "agent:main:cron": {
+    "sessionId": "f0000002-0002-4002-8002-000000000002",
+    "updatedAt": 1774990000000,
+    "systemSent": true,
+    "abortedLastRun": false,
+    "chatType": "direct",
+    "lastChannel": "internal",
+    "sessionFile": "/home/demo/.openclaw/agents/main/sessions/f0000002-0002-4002-8002-000000000002.jsonl",
+    "label": "示例：定时任务与工具"
+  },
+  "agent:main:archived": {
+    "sessionId": "f0000003-0003-4003-8003-000000000003",
+    "updatedAt": 1774980000000,
+    "lastChannel": "webchat",
+    "chatType": "direct",
+    "sessionFile": "/home/demo/.openclaw/agents/main/sessions/f0000003-0003-4003-8003-000000000003.jsonl.deleted.2026-04-01T12-00-00.000Z",
+    "label": "示例：已归档会话（仅元数据）"
+  },
+  "agent:main:reset-snapshot": {
+    "sessionId": "f0000004-0004-4004-8004-000000000004",
+    "updatedAt": 1774970000000,
+    "lastChannel": "webchat",
+    "chatType": "direct",
+    "sessionFile": "/home/demo/.openclaw/agents/main/sessions/f0000004-0004-4004-8004-000000000004.jsonl.reset.2026-04-02T14-30-00.000Z",
+    "label": "示例：重置前快照（reset）"
+  }
+}

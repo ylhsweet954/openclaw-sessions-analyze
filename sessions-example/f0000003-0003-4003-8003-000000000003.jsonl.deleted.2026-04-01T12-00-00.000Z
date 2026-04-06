@@ -1,0 +1,3 @@
+{"type":"session","version":3,"id":"f0000003-0003-4003-8003-000000000003","timestamp":"2026-03-30T08:00:00.000Z","cwd":"/home/demo/.openclaw/workspace"}
+{"type":"model_change","id":"e3000001","parentId":null,"timestamp":"2026-03-30T08:00:00.010Z","provider":"example","modelId":"Example-Model-1"}
+{"type":"message","id":"e3000002","parentId":"e3000001","timestamp":"2026-03-30T08:00:05.000Z","message":{"role":"user","content":[{"type":"text","text":"示例：此文件演示 *.jsonl.deleted.* 命名；内容已脱敏。"}],"timestamp":1774900005000}}
