@@ -1,6 +1,7 @@
 (function () {
   const LS_KEY = "osa:sessionsRoot";
   const LS_SIDEBAR = "osa:sidebarCollapsed";
+  const LS_THEME = "osa:theme";
 
   const rootPath = document.getElementById("rootPath");
   const saveRoot = document.getElementById("saveRoot");
@@ -20,9 +21,44 @@
   const detailSummarySkills = document.getElementById("detailSummarySkills");
   const detailSummaryTools = document.getElementById("detailSummaryTools");
   const detailEvents = document.getElementById("detailEvents");
+  const themeToggle = document.getElementById("themeToggle");
+  const themeToggleLabel = document.getElementById("themeToggleLabel");
 
   /** @type {{ sessionId: string, fileName: string } | null} */
   let selected = null;
+
+  function getTheme() {
+    return document.documentElement.getAttribute("data-theme") === "dark"
+      ? "dark"
+      : "light";
+  }
+
+  function applyTheme(theme) {
+    const next = theme === "dark" ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", next);
+    try {
+      localStorage.setItem(LS_THEME, next);
+    } catch {
+      /* */
+    }
+    syncThemeToggleUi();
+  }
+
+  function syncThemeToggleUi() {
+    if (!themeToggle || !themeToggleLabel) return;
+    const dark = getTheme() === "dark";
+    themeToggle.setAttribute("aria-pressed", dark ? "true" : "false");
+    themeToggleLabel.textContent = dark ? "浅色" : "深色";
+    themeToggle.title = dark ? "切换为浅色外观" : "切换为深色外观";
+  }
+
+  function initThemeToggle() {
+    syncThemeToggleUi();
+    if (!themeToggle) return;
+    themeToggle.addEventListener("click", function () {
+      applyTheme(getTheme() === "dark" ? "light" : "dark");
+    });
+  }
 
   function currentRoot() {
     return rootPath.value.trim();
@@ -1241,6 +1277,7 @@
 
   initSidebarToggle();
   initDetailEventsFullscreen();
+  initThemeToggle();
 
   void (async function () {
     try {

@@ -1,14 +1,41 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="light">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>OpenClaw 会话查看</title>
+		<script>
+			(function () {
+				try {
+					var k = "osa:theme";
+					var t = localStorage.getItem(k);
+					if (t !== "light" && t !== "dark") {
+						t = window.matchMedia("(prefers-color-scheme: dark)").matches
+							? "dark"
+							: "light";
+					}
+					document.documentElement.setAttribute("data-theme", t);
+				} catch (e) {
+					document.documentElement.setAttribute("data-theme", "light");
+				}
+			})();
+		</script>
 		<link rel="stylesheet" href="/styles.css" />
 	</head>
 	<body>
 		<header class="topbar">
-			<h1 class="title">OpenClaw 会话</h1>
+			<div class="topbar-head">
+				<h1 class="title">OpenClaw 会话</h1>
+				<button
+					type="button"
+					id="themeToggle"
+					class="btn-theme"
+					aria-pressed="false"
+					title="切换浅色 / 深色外观"
+				>
+					<span class="btn-theme-label" id="themeToggleLabel">主题</span>
+				</button>
+			</div>
 			<div class="path-row">
 				<label for="rootPath">会话目录</label>
 				<input
@@ -19,7 +46,7 @@
 					autocomplete="off"
 					placeholder="加载中…"
 				/>
-				<button type="button" id="saveRoot" class="btn">保存</button>
+				<button type="button" id="saveRoot" class="btn btn-brand">保存</button>
 				<button type="button" id="reloadList" class="btn btn-secondary">
 					刷新列表
 				</button>
