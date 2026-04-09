@@ -1,6 +1,6 @@
 {
-	"name": "osa",
-	"version": "0.1.0",
+	"name": "openclaw-sessions-analyze",
+	"version": "0.0.1",
 	"description": "OpenClaw Sessions Analyzer CLI",
 	"type": "module",
 	"bin": {
