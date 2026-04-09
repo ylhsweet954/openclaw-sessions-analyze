@@ -1,7 +1,7 @@
 {
-	"name": "openclaw-sessions-analyze",
+	"name": "osa-cli",
 	"version": "0.1.0",
-	"description": "Local HTTP viewer for OpenClaw agent sessions (osa CLI)",
+	"description": "OpenClaw Sessions Analyzer CLI",
 	"type": "module",
 	"bin": {
 		"osa": "dist/cli.js"
