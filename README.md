@@ -48,7 +48,8 @@ node $(npm root -g)/openclaw-sessions-analyze/dist/cli.js
 
 ```bash
 npm install
-npm run build
+npm run 
+
 node dist/cli.js
 ```
 
